@@ -1,0 +1,1 @@
+<?php $this->load->view( 'Output/templates/site-title' ); ?>

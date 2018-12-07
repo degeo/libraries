@@ -1,0 +1,1 @@
+<?php $this->load->view( 'degeo-templates/site-title' ); ?>

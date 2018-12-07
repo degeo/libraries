@@ -1,0 +1,1 @@
+<? $this->load->view('se-loops/accounts-table') ?>

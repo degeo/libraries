@@ -1,0 +1,1 @@
+<span class="account-favorite-taxa" data-taxon-id="<?=$taxon['taxon_id']?>" data-is-favorite="<?=$taxon['is_favorite']?>"></span>
