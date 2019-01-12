@@ -4,6 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class CRUD_model extends Query_model {
 
 	protected $primary_table = '';
+	protected $primary_key = '';
 
 	public function set_primary_table( $primary_table ) {
 		$this->primary_table = $primary_table;
@@ -17,18 +18,18 @@ class CRUD_model extends Query_model {
 		if( empty( $record_data ) )
 			return false;
 
-		$conditions = $this->array_to_sql_string( $record_data, 'AND', true );
+		$query = $this->db->insert_string( $this->primary_table, $record_data );
 
-		if( empty( $conditions ) )
+		return $this->get( 'insert_id', $query );
+	} // function
+
+	public function create_relationship( $relational_table = '', array $record_data = array() ) {
+		if( empty( $relational_table ) || empty( $record_data ) )
 			return false;
 
-		$query = "INSERT INTO {$this->primary_table} {$conditions}";
+		$query = $this->db->insert_string( $relational_table, $record_data );
 
-		$results = $this->get( 'affected_rows', $query );
-
-		$insert_id = $this->db->insert_id();
-
-		return $insert_id;
+		return $this->get( 'insert_id', $query );
 	} // function
 
 	public function read( array $record_data = array(), $condition_type = 'AND', $limit = 10, $offset = 0, $orderby = '', $order = 'ASC' ) {
@@ -49,20 +50,12 @@ class CRUD_model extends Query_model {
 	} // function
 
 	public function update( array $where_data, array $record_data ) {
-		if( empty( $record_data ) )
+		if( empty( $record_data ) || empty( $where_data ) )
 			return false;
 
-		$where_conditions = $this->array_to_sql_string( $where_data, 'AND' );
+		$where_statement = $this->array_to_sql_string( $where_data, 'AND' );
 
-		if( empty( $where_conditions ) )
-			return false;
-
-		$set_conditions = $this->array_to_sql_string( $record_data, ',' );
-
-		if( empty( $set_conditions ) )
-			return false;
-
-		$query = "UPDATE {$this->primary_table} SET {$set_conditions} WHERE {$where_conditions}";
+		$query = $this->db->update_string( $this->primary_table, $record_data, $where_statement );
 
 		$results = $this->get( 'affected_rows', $query );
 
@@ -83,6 +76,55 @@ class CRUD_model extends Query_model {
 		$results = $this->get( 'affected_rows', $query );
 
 		return $results;
+	} // function
+
+	/**
+	 * @param Array $join_tables - Multi-level array with `name` and `primary_key` keys.
+	 * @param Array $fields - Single-level array with [n] => `table_column` pairings.
+	 */
+	public function search( $query, $type = 'broad', $primary_table, $join_tables = array(), $fields = array() ) {
+		if( empty( $primary_table ) ):
+			$primary_table = $this->primary_table;
+		endif;
+
+		switch( $type ):
+			case 'exact':
+				$delimiter = 'AND';
+				break;
+			case 'broad':
+			default:
+				$delimiter = 'OR';
+				break;
+		endswitch;
+
+		$from_statement = "{$primary_table} ";
+		$where_statement = '';
+
+		if( !empty( $join_tables ) ):
+			foreach( $join_tables as $table ):
+				$from_statement = "LEFT JOIN {$table['name']} USING( {$table['primary_key']} ) ";
+			endforeach;
+		endif;
+
+		$query_strings = explode( ' ', $query );
+
+		foreach( $query_strings as $string ):
+			if( empty( $string ) )
+				continue;
+
+			#$string = "[:<<:]{$string}[:>>:]";
+			$string = $this->clean_value( $string );
+			foreach( $fields as $field ):
+				$where_statement .= "`{$field}` RLIKE {$string} {$delimiter} ";
+			endforeach;
+		endforeach;
+
+		$from_statement = trim( $from_statement );
+		$where_statement = trim( $where_statement, " {$delimiter} " );
+
+		$query = "SELECT * FROM {$from_statement} WHERE {$where_statement}";
+
+		return $this->get( 'results', $query );
 	} // function
 
 } // class

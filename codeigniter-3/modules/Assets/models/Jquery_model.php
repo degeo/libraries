@@ -4,7 +4,7 @@ class Jquery_model extends CI_Model {
 
 	private $version = '3.2.1';
 
-	private $position = 'footer';
+	private $position = 'header';
 
 	protected $priority = 5;
 
@@ -25,7 +25,7 @@ class Jquery_model extends CI_Model {
 				$this->Assets->add_asset( $this->position, $this->asset_id, '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" crossorigin="anonymous"></script>', $this->priority );
 				break;
 			case '3.2.1':
-				$this->Assets->add_asset( $this->position, $this->asset_id, '<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>', $this->priority );
+				$this->Assets->add_asset( $this->position, $this->asset_id, '<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>', $this->priority );
 				break;
 			case '3.1.1':
 			default:

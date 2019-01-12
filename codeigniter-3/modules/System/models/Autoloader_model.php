@@ -11,6 +11,7 @@ class Autoloader_model extends CI_Model {
 	public function load_models() {
 		# Load Helpers
 		$this->load->helper('System/time_helper');
+		$this->load->helper('System/value_helper');
 
 		# Load Query Model
 		$this->load->model('System/Query_model', 'Query');

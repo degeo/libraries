@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Host Model
+ * @author Jay Fortner <jay@degeo.net>
  *
  * Example:
  * $this->load->model('Degeo_app_assets_model','Degeo_assets');
