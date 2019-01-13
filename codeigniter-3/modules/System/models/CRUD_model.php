@@ -32,7 +32,52 @@ class CRUD_model extends Query_model {
 		return $this->get( 'insert_id', $query );
 	} // function
 
-	public function read( array $record_data = array(), $condition_type = 'AND', $limit = 10, $offset = 0, $orderby = '', $order = 'ASC' ) {
+	public function create_relational( $relational_table = '', $primary_id = '', $foreign_id = '', array $record_data = array() ) {
+		if( empty( $relational_table ) || empty( $primary_id ) || empty( $foreign_id ) )
+			return false;
+
+		$additional_data = '';
+		if( !empty( $record_data ) ):
+			$additional_data = ',';
+			foreach( $record_data as $data ):
+				$additional_data .= $this->clean_value( $data );
+			endforeach;
+		endif;
+
+		$query = "INSERT INTO {$relational_table} VALUES ( NULL, {$primary_id}, {$foreign_id}{$additional_data} )";
+
+		return $this->get( 'insert_id', $query );
+	} // function
+
+	public function read( array $record_data = array(), $condition_type = 'AND', $limit = 20, $offset = 0, $orderby = '', $order = 'ASC' ) {
+		$conditions = '1=1';
+
+		$query = "SELECT * FROM `{$this->primary_table}`";
+
+		if( !empty( $record_data ) ):
+			$conditions = $this->array_to_sql_string( $record_data, $condition_type );
+
+			if( !empty( $conditions ) ):
+				$query .= " WHERE {$conditions}";
+			endif;
+		endif;
+
+		if( !empty( $orderby ) )
+			$query = $this->orderby( $query, $orderby, $order );
+
+		if( !empty( $limit ) )
+			$query = $this->limit( $query, $limit, $offset );
+
+		if( $limit == 1 ):
+			$results = $this->get( 'result', $query );
+		else:
+			$results = $this->get( 'results', $query );
+		endif;
+
+		return $results;
+	} // function
+
+	public function read_record( array $record_data = array(), $condition_type = 'AND', $limit = 10, $offset = 0, $orderby = '', $order = 'ASC' ) {
 		if( !empty( $record_data ) )
 			$conditions = $this->array_to_sql_string( $record_data, $condition_type );
 
@@ -44,7 +89,7 @@ class CRUD_model extends Query_model {
 		if( !empty( $orderby ) )
 			$query .= " ORDER BY {$orderby} {$order}";
 
-		$results = $this->get( 'results', $query );
+		$results = $this->get( 'result', $query );
 
 		return $results;
 	} // function
@@ -56,6 +101,19 @@ class CRUD_model extends Query_model {
 		$where_statement = $this->array_to_sql_string( $where_data, 'AND' );
 
 		$query = $this->db->update_string( $this->primary_table, $record_data, $where_statement );
+
+		$results = $this->get( 'affected_rows', $query );
+
+		return $results;
+	} // function
+
+	public function update_relationship( $relational_table = '', array $where_data, array $record_data ) {
+		if( empty( $relational_table ) || empty( $where_data ) || empty( $record_data ) )
+			return false;
+
+		$where_statement = $this->array_to_sql_string( $where_data, 'AND' );
+
+		$query = $this->db->update_string( $relational_table, $record_data, $where_statement );
 
 		$results = $this->get( 'affected_rows', $query );
 
@@ -76,6 +134,17 @@ class CRUD_model extends Query_model {
 		$results = $this->get( 'affected_rows', $query );
 
 		return $results;
+	} // function
+
+	public function delete_relationship( $relational_table = '', array $where_data ) {
+		if( empty( $relational_table ) || empty( $where_data ) )
+			return false;
+
+		$where_statement = $this->array_to_sql_string( $where_data, 'AND' );
+
+		$query = "DELETE FROM {$relational_table} WHERE {$where_statement}";
+
+		return $this->get( 'affected_rows', $query );
 	} // function
 
 	/**

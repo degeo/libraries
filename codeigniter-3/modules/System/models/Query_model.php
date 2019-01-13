@@ -100,6 +100,10 @@ class Query_model extends CI_Model {
 		else:
 
 			switch( $get_what ):
+				case 'first_column':
+					$result = $sql->row_array();
+					return current($result);
+					break;
 				case 'insert_id':
 					return $this->db->insert_id();
 					break;
@@ -171,6 +175,44 @@ class Query_model extends CI_Model {
 					endif;
 				else:
 					$sql_string .= "`{$column}` = " . $this->clean_value($value) ." {$delimiter} ";
+				endif;
+			endif;
+		endforeach;
+
+		if( $insert_values === true ):
+			$fields = rtrim($fields,',');
+			$values = rtrim($values,',');
+			$sql_string = '(' . $fields . ') VALUES (' . $values . ')';
+		else:
+			$sql_string = rtrim( $sql_string, " {$delimiter} " );
+		endif;
+
+		return $sql_string;
+	} // function
+
+	protected function array_to_eav_sql_string( array $array, $delimiter = 'AND', $insert_values = false, $update_values = false ) {
+		$sql_string = '';
+
+		$fields = '';
+		$values = '';
+		foreach( $array as $column => $value ):
+			if( is_array( $value ) ):
+				$value = $value['value'];
+				$sql_string .= "(`attribute_key` = " . $this->clean_value($column) ." {$delimiter} `value` = " . $this->clean_value($value) .")";
+			else:
+				if( $insert_values === true ):
+					$fields .= "`{$column}`,";
+					$values .= $this->clean_value($value) . ",";
+				else:
+					if( $value == 'NULL' || $value == '' ):
+						if( $update_values === true ):
+							$sql_string .= "`{$column}` = '' {$delimiter} ";
+						else:
+							$sql_string .= "`{$column}` IS NULL {$delimiter} ";
+						endif;
+					else:
+						$sql_string .= "`{$column}` = " . $this->clean_value($value) ." {$delimiter} ";
+					endif;
 				endif;
 			endif;
 		endforeach;
