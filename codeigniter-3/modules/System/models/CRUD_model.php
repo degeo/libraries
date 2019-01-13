@@ -3,17 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class CRUD_model extends Query_model {
 
-	protected $primary_table = '';
-	protected $primary_key = '';
-
-	public function set_primary_table( $primary_table ) {
-		$this->primary_table = $primary_table;
-	} // function
-
-	public function get_primary_table( $primary_table ) {
-		return $this->primary_table;
-	} // function
-
 	public function create( array $record_data ) {
 		if( empty( $record_data ) )
 			return false;

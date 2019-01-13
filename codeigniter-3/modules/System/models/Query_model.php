@@ -11,6 +11,20 @@ class Query_model extends CI_Model {
 		parent::__construct();
 	} // function
 
+	public function set_primary_table( $table ) {
+		$this->primary_table = $table;
+
+		return $this->primary_table;
+	} // function
+
+	public function get_primary_table() {
+		return $this->primary_table;
+	} // function
+
+	public function get_primary_key() {
+		return $this->primary_key;
+	} // function
+
 	public function get_table_info( $table = '' ) {
 		if( empty( $table ) )
 			$table = $primary_table;
