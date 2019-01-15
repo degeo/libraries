@@ -11,7 +11,7 @@ if( !empty( $record ) ):
 	$content .= '</ul>';
 
 	$media = array(
-		'heading' => 'Entity',
+		'heading' => ucwords( singular( $this->router->fetch_class() ) ),
 		'content' => $content
 	);
 

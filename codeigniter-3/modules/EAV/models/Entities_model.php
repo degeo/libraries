@@ -55,10 +55,15 @@ class Entities_model extends CRUD_model {
 		if( empty( $entity_id ) )
 			return array();
 
+		$parsed_results = array(
+			'entity_id' => $entity_id
+		);
+
 		$entity_id = $this->clean_value( $entity_id );
 
 		$query = "SELECT *
 					FROM {$this->primary_table}
+					JOIN classifications USING(classification_id)
 					JOIN eav USING(entity_id)
 					JOIN attributes ON(eav.attribute_id = attributes.attribute_id)
 					JOIN `values` USING(`value_id`)
@@ -66,10 +71,15 @@ class Entities_model extends CRUD_model {
 
 		$results = $this->get( 'results', $query );
 
-		$parsed_results = array();
-		foreach( $results as $result ):
-			$parsed_results[ $result['attribute_key'] ] = $result;
-		endforeach;
+		if( !empty( $results ) ):
+			$parsed_results['classification_id'] = $results[0]['classification_id'];
+			$parsed_results['classification_key'] = $results[0]['classification_key'];
+			$parsed_results['classification_label'] = $results[0]['classification_label'];
+
+			foreach( $results as $result ):
+				$parsed_results[ $result['attribute_key'] ] = $result;
+			endforeach;
+		endif;
 
 		return $parsed_results;
 	} // function

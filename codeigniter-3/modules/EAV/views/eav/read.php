@@ -1,4 +1,4 @@
-<?php if( !empty( $record ) ): ?>
+<?php if( !empty( $record ) ):  print_r($record); ?>
 	<div class="row">
 		<div class="col-xs-12">
 
@@ -13,7 +13,7 @@
 						<div class="row">
 							<div class="col-xs-12 col-md-6">
 
-								<?php $this->load->view( 'EAV/' . strtolower( $this->router->fetch_class() ) . '/form-fields', array( 'record' => $record )  ); ?>
+								<?php $this->load->view( 'EAV/eav/form-fields', array( 'record' => $record )  ); ?>
 
 							</div>
 						</div>
