@@ -7,10 +7,6 @@ class Messages_model extends Application_model {
 	public function __construct() {
 		parent::__construct();
 
-		$this->load->library( 'session' );
-
-		$this->Layout->add_section( 'messages', "Messages/alert", 15 );
-
 		if( $this->session->has_userdata('messages') ):
 			$session_messages = $this->session->userdata( 'messages' );
 			log_message( 'debug', __CLASS__ . ' Session: ' . print_r( $session_messages, true ) );
